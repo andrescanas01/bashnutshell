@@ -22,38 +22,89 @@ bool ifAlias(char* name){
     }
     return false;
 }
+
+
+char* subVar(char* var){
+    for (int i = 0; i < varIndex; i++) {
+        if(strcmp(varTable.var[i], var) == 0) {
+            return varTable.word[i];
+        }
+    }
+    return var;
+
+}
+bool isVar(char* var) {
+    for (int i = 0; i < varIndex; i++) {
+        if(strcmp(varTable.var[i], var) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int counter = 0;
+
+
 %}
 %array
 %option noyywrap
 %x string_condition
+%x var_condition
 
-CHAR            [.A-Za-z0-9!\/_-][.A-Za-z0-9!\/_-]*
+
+CHAR            [.A-Za-z0-9!:\/_-][.A-Za-z0-9!:\/_-]*
 ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -]*
-
+VARSTART        (\$\{)
 %%
 
 <string_condition>{ANYCHAR}+     { yylval.string = strdup(yytext); return STRING;}
-<string_condition>[\"]          {BEGIN(INITIAL);}
+<string_condition>[\"]           {BEGIN(INITIAL); counter++;}
+
+
+<var_condition>{ANYCHAR}+       {if(isVar(yytext)) {
+                                    printf("yytext: %s\n", yytext);
+                                    //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
+                                    char *yycopy = strdup( subVar(yytext) );
+                                        for ( int i = strlen(subVar(yytext)) - 1; i >= 0; --i )
+                                            unput( yycopy[i] );
+                                        free( yycopy );
+                                    } else {
+                                        printf("yytext: %s\n", yytext);
+                                        yylval.string = strdup(yytext);
+                                        return STRING;
+                                    };
+                                }
+
+<var_condition>[\}]           {BEGIN(INITIAL); counter++;}
 
 [ ]		            { }
-bye                 { return BYE; }
-cd		            { return CD;}
-alias		        { return ALIAS; }
-setenv              { return SETENV; }
-printenv            { return PRINTENV; }
-"\n"		        { return END; }
+bye                 { counter++; return BYE; }
+cd		            { counter++; return CD;}
+alias		        { counter++; return ALIAS; }
+unalias             { counter++; return UNALIAS; }
+setenv              { counter++; return SETENV; }
+printenv            { counter++; return PRINTENV; }
+"\n"		        { counter = 0; return END; }
+{VARSTART}          { BEGIN(var_condition); }
 [\"]                 { BEGIN(string_condition); }
-{CHAR}+              {if(ifAlias(yytext)) {
+{CHAR}+              {if(counter == 0) {
+
+                        if(ifAlias(yytext)) {
                         printf("yytext: %s\n", yytext);
                         //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
                            char *yycopy = strdup( subAliases(yytext) );
                            for ( int i = strlen(subAliases(yytext)) - 1; i >= 0; --i )
                                unput( yycopy[i] );
                            free( yycopy );
+                        } else {
+                            printf("yytext: %s\n", yytext);
+                            yylval.string = strdup(yytext);
+                            return STRING;
+                        };
                     } else {
-                        printf("yytext: %s\n", yytext);
-                        yylval.string = strdup(yytext);
-                        return STRING;
-                    };
+                            printf("yytext: %s\n", yytext);
+                            yylval.string = strdup(yytext);
+                            return STRING;
                      }
+                    }
 %%
