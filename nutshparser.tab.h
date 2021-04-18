@@ -45,8 +45,11 @@
      ALIAS = 261,
      UNALIAS = 262,
      SETENV = 263,
-     PRINTENV = 264,
-     END = 265
+     UNSETENV = 264,
+     PRINTENV = 265,
+     META = 266,
+     END = 267,
+     IO = 268
    };
 #endif
 /* Tokens.  */
@@ -56,18 +59,21 @@
 #define ALIAS 261
 #define UNALIAS 262
 #define SETENV 263
-#define PRINTENV 264
-#define END 265
+#define UNSETENV 264
+#define PRINTENV 265
+#define META 266
+#define END 267
+#define IO 268
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 22 "nutshparser.y"
-{char *string;}
+#line 30 "nutshparser.y"
+{char *string; int count;}
 /* Line 1529 of yacc.c.  */
-#line 71 "nutshparser.tab.h"
+#line 77 "nutshparser.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
