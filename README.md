@@ -20,13 +20,13 @@ The team members working on this project were Andres Canas and Darren Wang. Unfo
 
 Andres:  
 All built in commands.  
-Alias expansion.
-Error Handling in circular expansions for Alias
+Alias expansion.\
+Error Handling in circular expansions for Alias\
 Environment variable expansion.\ 
 Error handling\
 Parser Recursion\
 Non-built in commands with any variable number of arguments\
-Searching command in path environment variable\ 
+Searching commands in path environment variable\ 
 IO output redirection.\
 IO input redirection.\
 Multiple Pipes in Command Line Input\
