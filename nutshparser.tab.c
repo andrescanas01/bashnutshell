@@ -113,15 +113,24 @@ int yylex(void);
 int yyerror(char *s);
 int runCD(char* arg);
 int runSetAlias(char *name, char *word);
+int checkSubAlias (char *check, char *word);
 int runSetEnv(char *var, char *word);
 int runPrintEnv(void);
 int runPrintAlias(void);
+int runPrintEnvF(char* io, char* file);
+int runPrintAliasF(char* io, char* file);
 int runPrintCmd(void);
 int resetCmdTbl(void);
 int runUnAlias(char* name);
 int runUnEnv(char* name);
 int runExec(char command[][100], int n);
 int cnt = 0;
+
+#define READ 0
+#define WRITE 1
+
+#define STDIN 0
+#define STDOUT 1
 
 
 
@@ -146,10 +155,10 @@ int cnt = 0;
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 30 "nutshparser.y"
+#line 39 "nutshparser.y"
 {char *string; int count;}
 /* Line 193 of yacc.c.  */
-#line 153 "nutshparser.tab.c"
+#line 162 "nutshparser.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -162,7 +171,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 166 "nutshparser.tab.c"
+#line 175 "nutshparser.tab.c"
 
 #ifdef short
 # undef short
@@ -375,18 +384,18 @@ union yyalloc
 #endif
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  21
+#define YYFINAL  23
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   36
+#define YYLAST   44
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  14
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  4
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  15
+#define YYNRULES  18
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  35
+#define YYNSTATES  43
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -433,7 +442,7 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     6,    10,    13,    18,    22,    26,    31,
-      34,    37,    40,    45,    50,    53
+      34,    37,    42,    47,    50,    55,    60,    67,    70
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -442,16 +451,18 @@ static const yytype_int8 yyrhs[] =
       15,     0,    -1,     3,    12,    -1,     4,     5,    12,    -1,
        6,    12,    -1,     6,     5,     5,    12,    -1,     7,     5,
       12,    -1,     9,     5,    12,    -1,     8,     5,     5,    12,
-      -1,    10,    12,    -1,    16,    12,    -1,     5,    17,    -1,
+      -1,    10,    12,    -1,    16,    12,    -1,    10,    13,     5,
+      12,    -1,     6,    13,     5,    12,    -1,     5,    17,    -1,
        5,    17,    11,    16,    -1,     5,    17,    13,     5,    -1,
-       5,    17,    -1,    -1
+       5,    17,    13,     5,    13,     5,    -1,     5,    17,    -1,
+      -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    39,    39,    40,    41,    42,    43,    44,    45,    46,
-      47,    50,    51,    52,    55,    56
+       0,    48,    48,    49,    50,    51,    52,    53,    54,    55,
+      56,    57,    58,    61,    62,    63,    64,    67,    68
 };
 #endif
 
@@ -480,14 +491,14 @@ static const yytype_uint16 yytoknum[] =
 static const yytype_uint8 yyr1[] =
 {
        0,    14,    15,    15,    15,    15,    15,    15,    15,    15,
-      15,    16,    16,    16,    17,    17
+      15,    15,    15,    16,    16,    16,    16,    17,    17
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     2,     3,     2,     4,     3,     3,     4,     2,
-       2,     2,     4,     4,     2,     0
+       2,     4,     4,     2,     4,     4,     6,     2,     0
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -495,10 +506,11 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,    15,     0,     0,     0,     0,     0,     0,
-       0,     2,     0,    15,    11,     0,     4,     0,     0,     0,
-       9,     1,    10,     3,    14,     0,     0,     0,     6,     0,
-       7,    12,    13,     5,     8
+       0,     0,     0,    18,     0,     0,     0,     0,     0,     0,
+       0,     2,     0,    18,    13,     0,     4,     0,     0,     0,
+       0,     9,     0,     1,    10,     3,    17,     0,     0,     0,
+       0,     6,     0,     7,     0,    14,    15,     5,    12,     8,
+      11,     0,    16
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
@@ -509,19 +521,20 @@ static const yytype_int8 yydefgoto[] =
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -4
+#define YYPACT_NINF -11
 static const yytype_int8 yypact[] =
 {
-      -3,     0,     5,     8,     3,     9,    11,    12,     6,    19,
-      10,    -4,    13,     8,    -2,    15,    -4,    14,    16,    17,
-      -4,    -4,    -4,    -4,    -4,    18,    22,    20,    -4,    21,
-      -4,    -4,    -4,    -4,    -4
+       6,    -6,    -3,    12,    -5,    13,    14,    15,    -8,    21,
+      10,   -11,    11,    12,   -10,    19,   -11,    20,    16,    22,
+      17,   -11,    25,   -11,   -11,   -11,   -11,    26,    27,    23,
+      24,   -11,    28,   -11,    29,   -11,    30,   -11,   -11,   -11,
+     -11,    32,   -11
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -4,    -4,    -1,    23
+     -11,   -11,    -1,    31
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -531,18 +544,20 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       1,     2,     3,     4,     5,     6,     7,     8,    15,    25,
-      12,    26,    11,    13,    17,    16,    18,    19,    20,    21,
-      27,    29,    22,     3,    31,    23,    28,    32,     0,    30,
-       0,     0,    33,    34,     0,     0,    24
+      15,    27,    12,    28,    21,    22,    11,    16,    17,     1,
+       2,     3,     4,     5,     6,     7,     8,    13,    18,    19,
+      20,    23,    24,    25,    29,    30,    35,    32,    31,    33,
+      34,     3,    36,     0,     0,    37,    38,    42,     0,     0,
+      39,    40,     0,    41,    26
 };
 
 static const yytype_int8 yycheck[] =
 {
-       3,     4,     5,     6,     7,     8,     9,    10,     5,    11,
-       5,    13,    12,     5,     5,    12,     5,     5,    12,     0,
-       5,     5,    12,     5,    25,    12,    12,     5,    -1,    12,
-      -1,    -1,    12,    12,    -1,    -1,    13
+       5,    11,     5,    13,    12,    13,    12,    12,    13,     3,
+       4,     5,     6,     7,     8,     9,    10,     5,     5,     5,
+       5,     0,    12,    12,     5,     5,    27,     5,    12,    12,
+       5,     5,     5,    -1,    -1,    12,    12,     5,    -1,    -1,
+      12,    12,    -1,    13,    13
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -550,9 +565,10 @@ static const yytype_int8 yycheck[] =
 static const yytype_uint8 yystos[] =
 {
        0,     3,     4,     5,     6,     7,     8,     9,    10,    15,
-      16,    12,     5,     5,    17,     5,    12,     5,     5,     5,
-      12,     0,    12,    12,    17,    11,    13,     5,    12,     5,
-      12,    16,     5,    12,    12
+      16,    12,     5,     5,    17,     5,    12,    13,     5,     5,
+       5,    12,    13,     0,    12,    12,    17,    11,    13,     5,
+       5,    12,     5,    12,     5,    16,     5,    12,    12,    12,
+      12,    13,     5
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1367,78 +1383,93 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 39 "nutshparser.y"
+#line 48 "nutshparser.y"
     {exit(1); return 1; ;}
     break;
 
   case 3:
-#line 40 "nutshparser.y"
+#line 49 "nutshparser.y"
     {runCD((yyvsp[(2) - (3)].string)); return 1;;}
     break;
 
   case 4:
-#line 41 "nutshparser.y"
+#line 50 "nutshparser.y"
     {runPrintAlias(); return 1;;}
     break;
 
   case 5:
-#line 42 "nutshparser.y"
+#line 51 "nutshparser.y"
     {runSetAlias((yyvsp[(2) - (4)].string), (yyvsp[(3) - (4)].string)); return 1;;}
     break;
 
   case 6:
-#line 43 "nutshparser.y"
+#line 52 "nutshparser.y"
     {runUnAlias((yyvsp[(2) - (3)].string)); return 1;;}
     break;
 
   case 7:
-#line 44 "nutshparser.y"
+#line 53 "nutshparser.y"
     {runUnEnv((yyvsp[(2) - (3)].string)); return 1;;}
     break;
 
   case 8:
-#line 45 "nutshparser.y"
+#line 54 "nutshparser.y"
     {runSetEnv((yyvsp[(2) - (4)].string), (yyvsp[(3) - (4)].string)); return 1;;}
     break;
 
   case 9:
-#line 46 "nutshparser.y"
+#line 55 "nutshparser.y"
     {runPrintEnv(); return 1;;}
     break;
 
   case 10:
-#line 47 "nutshparser.y"
+#line 56 "nutshparser.y"
     {runPrintCmd(); return 1;;}
     break;
 
   case 11:
-#line 50 "nutshparser.y"
-    {strcpy(cmdTable.cmd[cmdIndex], (yyvsp[(1) - (2)].string)); cmdTable.argc[cmdIndex] = 								  (yyvsp[(2) - (2)].count);  cmdIndex++;;}
+#line 57 "nutshparser.y"
+    {runPrintEnvF((yyvsp[(2) - (4)].string), (yyvsp[(3) - (4)].string)); return 1;;}
     break;
 
   case 12:
-#line 51 "nutshparser.y"
-    {strcpy(cmdTable.cmd[cmdIndex], (yyvsp[(1) - (4)].string)); cmdTable.argc[cmdIndex] = (yyvsp[(2) - (4)].count);										    cmdIndex++;;}
+#line 58 "nutshparser.y"
+    {runPrintAliasF((yyvsp[(2) - (4)].string), (yyvsp[(3) - (4)].string)); return 1;;}
     break;
 
   case 13:
-#line 52 "nutshparser.y"
-    {strcpy(cmdTable.cmd[cmdIndex], (yyvsp[(1) - (4)].string)); cmdTable.argc[cmdIndex] = (yyvsp[(2) - (4)].count);										    cmdIndex++; strcpy(cmdTable.io[0], (yyvsp[(3) - (4)].string)); strcpy(														 cmdTable.files[0],(yyvsp[(4) - (4)].string));}
+#line 61 "nutshparser.y"
+    {strcpy(cmdTable.cmd[cmdIndex], (yyvsp[(1) - (2)].string)); cmdTable.argc[cmdIndex] = 								  (yyvsp[(2) - (2)].count);  cmdIndex++;;}
     break;
 
   case 14:
-#line 55 "nutshparser.y"
-    { strcpy(cmdTable.args[argsIndex], (yyvsp[(1) - (2)].string)); argsIndex++; 									             (yyval.count) = ++cnt; ;}
+#line 62 "nutshparser.y"
+    {strcpy(cmdTable.cmd[cmdIndex], (yyvsp[(1) - (4)].string)); cmdTable.argc[cmdIndex] = (yyvsp[(2) - (4)].count);										    cmdIndex++;;}
     break;
 
   case 15:
-#line 56 "nutshparser.y"
+#line 63 "nutshparser.y"
+    {strcpy(cmdTable.cmd[cmdIndex], (yyvsp[(1) - (4)].string)); cmdTable.argc[cmdIndex] = (yyvsp[(2) - (4)].count);										    cmdIndex++; strcpy(cmdTable.io[0], (yyvsp[(3) - (4)].string)); strcpy(														 cmdTable.files[0],(yyvsp[(4) - (4)].string));;}
+    break;
+
+  case 16:
+#line 64 "nutshparser.y"
+    {strcpy(cmdTable.cmd[cmdIndex], (yyvsp[(1) - (6)].string)); cmdTable.argc[cmdIndex] = (yyvsp[(2) - (6)].count);										    cmdIndex++; strcpy(cmdTable.io[0], (yyvsp[(3) - (6)].string)); strcpy(														 cmdTable.files[0],(yyvsp[(4) - (6)].string)); strcpy(cmdTable.io[1], (yyvsp[(5) - (6)].string)); strcpy(														 cmdTable.files[1],(yyvsp[(6) - (6)].string));;}
+    break;
+
+  case 17:
+#line 67 "nutshparser.y"
+    { strcpy(cmdTable.args[argsIndex], (yyvsp[(1) - (2)].string)); argsIndex++; 									             (yyval.count) = ++cnt; ;}
+    break;
+
+  case 18:
+#line 68 "nutshparser.y"
     {(yyval.count) = 0; cnt = 0;;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1442 "nutshparser.tab.c"
+#line 1473 "nutshparser.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1652,7 +1683,7 @@ yyreturn:
 }
 
 
-#line 59 "nutshparser.y"
+#line 71 "nutshparser.y"
 
 
 int yyerror(char *s) {
@@ -1690,12 +1721,20 @@ int runCD(char* arg) {
 
 //Function for setting the alias
 int runSetAlias(char *name, char *word) {
-	for (int i = 0; i < aliasIndex; i++) {
-		if(strcmp(name, word) == 0){
+
+	//check if alias is trying to alias itself (a=a)
+	if(strcmp(name, word) == 0){
 			printf("Error, expansion of \"%s\" would createeee a loop.\n", name);
 			return 1;
 		}
-		else if((strcmp(aliasTable.name[i], name) == 0) && (strcmp(aliasTable.word[i], word) == 0)){
+	//recursively check if a loop is present in aliasing
+	else if(checkSubAlias(name, word) == 1){
+			printf("Error, expansion of \"%s\" would create a loop.\n", name);
+			return 1;
+		}
+
+	for (int i = 0; i < aliasIndex; i++) {
+		if((strcmp(aliasTable.name[i], name) == 0) && (strcmp(aliasTable.word[i], word) == 0)){
 			printf("Error, expansion of \"%s\" would create a loop.\n", name);
 			return 1;
 		}
@@ -1709,6 +1748,27 @@ int runSetAlias(char *name, char *word) {
 	aliasIndex++;
 
 	return 1;
+}
+
+int checkSubAlias (char *check, char *word) {
+	
+	for (int i = 0; i < aliasIndex; i++) {
+		if(strcmp(aliasTable.name[i], word) == 0) {
+
+			if(strcmp(aliasTable.word[i], check) == 0) {
+				return 1;
+			}
+			else {
+			    int x = checkSubAlias(check, aliasTable.word[i]);
+			    if (x == 1) {
+			    	return 1;
+			    }
+			}
+
+		}
+
+	}
+	return 0;
 }
 
 //Function for setting environment variable
@@ -1739,6 +1799,93 @@ int runPrintAlias() {
 		printf("%s=%s\n", aliasTable.name[i], aliasTable.word[i]);
 	}
 	return 1;
+}
+
+
+//Print Environment Variables to file
+int runPrintEnvF(char *io, char *file) {
+
+int pid;
+
+//Fork child
+if ((pid = fork()) < 0) {
+	printf("Fork Error\n");
+}
+
+else if (pid == 0)
+{
+
+	int fd1;
+
+       if (strcmp(io, ">>") == 0) {
+       		fd1 = open(file, O_WRONLY | O_APPEND | O_CREAT, 0777);
+       }
+       else {
+       		fd1 = creat(file , 0644) ;
+       }
+           
+
+        dup2(fd1, STDOUT_FILENO);
+        close(fd1);
+
+    for (int i = 0; i < varIndex; i++) {
+		printf("%s=%s\n", varTable.var[i], varTable.word[i]);
+	}
+	exit(1);
+}
+else
+{
+	int status;
+    /* Be parental */
+    while (!(wait(&status) == pid)) ; 
+}
+return 1;
+
+
+}
+
+
+
+//Print Aliases to file
+int runPrintAliasF(char *io, char *file) {
+
+int pid;
+
+//Fork child
+if ((pid = fork()) < 0) {
+	printf("Fork Error\n");
+}
+
+else if (pid == 0)
+{
+
+	int fd1;
+
+       if (strcmp(io, ">>") == 0) {
+       		fd1 = open(file, O_WRONLY | O_APPEND | O_CREAT, 0777);
+       }
+       else {
+       		fd1 = creat(file , 0644) ;
+       }
+           
+
+        dup2(fd1, STDOUT_FILENO);
+        close(fd1);
+
+	for (int i = 0; i < aliasIndex; i++) {
+		printf("%s=%s\n", aliasTable.name[i], aliasTable.word[i]);
+	}
+	exit(1);
+}
+else
+{
+	int status;
+    /* Be parental */
+    while (!(wait(&status) == pid)) ; 
+}
+return 1;
+
+
 }
 
 
@@ -1800,33 +1947,17 @@ int runUnEnv(char *name) {
 
 int runExec(char command[][100], int n) {
 
-pid_t parent = getpid();
-pid_t pid = fork();
-
-if (pid == -1)
-{
-    // error, failed to fork()
-    return 1;
-}
-else if (pid > 0)
-{
-    int status;
-    waitpid(pid, &status, 0);
-    return 1;
-}
-else { 
-
-
+   bool found = false;
    if(  (command[0][0] == '.') || (command[0][0] == '/') ) {
         ;
    }
    else {
 
-   char * token = strtok(varTable.word[3], ":");
-
-
+   char * path = strdup(varTable.word[3]);
+   char * token = strtok(path, ":");
 
    struct stat statbuf;
+   
 
 
    // loop through the string to extract all other tokens
@@ -1834,112 +1965,54 @@ else {
 
       char *result = malloc(strlen(token) + strlen(command[0]) + 1); // +1 null-terminator
 
-  
-
 	   strcpy(result, token);
 	   strcat(result, "/");
 	   strcat(result, command[0]);
 
-
-
        if (stat(result,&statbuf) == 0) {
        		strcpy(command[0], result);
        		free(result);
+       		found = true;
        		break;
        }
-
+ 
  
 	   free(result);
-	
 	   
 	  token = strtok(NULL, ":");
 
-
    }
 
    }
 
-
-
+   if (!found) {
+   		printf("Command not found\n");
+   		_exit(EXIT_FAILURE);
+   		
+   }
 
    char *args[n];
    for(int i = 0; i < n-1; i++) {
 
  		args[i] = strdup(command[i]);
+ 		
  
   }
   args[n-1] = NULL;
 
 
 
-
-    if (strcmp(cmdTable.io[0], ">") == 0)
-    {
-        int fd1 ;
-        if ((fd1 = creat(cmdTable.files[0] , 0644)) < 0) {
-            perror("Couldn't open the output file");
-            exit(0);
-        }           
-
-        dup2(fd1, STDOUT_FILENO); // 1 here can be replaced by STDOUT_FILENO
-        close(fd1);
-    }
-
-     if(strcmp(cmdTable.io[0], "<") == 0)
-    {   
-
-        // fdo is file-descriptor
-        int fd0;
-        if ((fd0 = open(cmdTable.files[0], O_RDONLY, 0)) < 0) {
-            perror("Couldn't open input file");
-            exit(0);
-        }           
-
-        dup2(fd0, 0); // STDIN_FILENO
-
-        close(fd0); // necessary
-    }
-
-
-
-
   execv(args[0], args);
-
 
   _exit(EXIT_FAILURE);
 
+ 
 
-  
+
+
 }
 
 
-}
-
-
-int runPrintCmd() {
-    //Loop through all commands in the command table
-	for (int i = 0; i < cmdIndex; i++) {
-
-
-		//create string array for arguments
-		char argv[cmdTable.argc[i] + 2][100];
-        strcpy(argv[0], cmdTable.cmd[i]);
-
-		//loop through arguments in commad Table
-		for(int j = 0; j < cmdTable.argc[i]; j++) {
-				if (cmdTable.argc[i] == 0) {break;}
-				else {
-				    argsIndex--;
-				    strcpy(argv[j+1], cmdTable.args[argsIndex]);
-	
-				}
-		}
-		runExec(argv,cmdTable.argc[i] + 2);
-	}
-
-	resetCmdTbl();
-	return 1;
-}
 
 int resetCmdTbl() {
 
@@ -1961,7 +2034,150 @@ int resetCmdTbl() {
 }
 
 
+int runPrintCmd() {
+
+    
+    //create process list and pipes for each command
+    int in = 0;
+    int out = 0;
+    pid_t pid;
+    int status;
+    int fds [cmdIndex-1][2];
+    int looper = argsIndex;
+
+
+    //Check command table for file redirection types
+	if (strcmp(cmdTable.io[0], "<") == 0) {
+	    in = 1;
+	}
+	else if (cmdTable.io[0][0] == '>') {
+	    out = 1;
+	}
+	if (cmdTable.io[1][0] == '>') {
+	    out = 2;
+	}
+
+    for(int i = 0; i < cmdIndex - 1; i++) {
+         if(pipe(fds[i]) < 0) {
+            printf("Couldn't Pipe\n");
+            exit(EXIT_FAILURE);
+         }
+    }
+
+    //Loop through all commands in the command table
+    for (int i = 0; i < cmdIndex; i++) {
+
+
+        //create string array for arguments
+        char argv[cmdTable.argc[i] + 2][100];
+        strcpy(argv[0], cmdTable.cmd[cmdIndex - i - 1]);
+
+        //loop through arguments in commad Table
+        for(int j = 0; j < cmdTable.argc[cmdIndex - i - 1]; j++) {
+                if (cmdTable.argc[cmdIndex - i - 1] == 0) {break;}
+                else {
+                  
+                    strcpy(argv[j+1], cmdTable.args[looper - argsIndex]);
+                    argsIndex--;
+    
+                }
+        }
+
+        //create child process
+        pid = fork();
+
+        if (pid < 0)
+        {
+            perror("error fork()");
+            exit(EXIT_FAILURE);
+        }
+
+        if (pid == 0)
+        {
+            
+            //if not last command redirect output
+            if (i < cmdIndex - 1)
+            {
+                dup2(fds[i][WRITE], STDOUT);
+ 
+            }
+            else {
+                
+                //check for file output
+			    if (out)
+			    {
+			        int fd1;
+			        if (out == 2 ) {
+			           if (strcmp(cmdTable.io[1], ">>") == 0) {
+			                fd1 = open(cmdTable.files[1], O_WRONLY | O_APPEND | O_CREAT, 0777);
+			           }
+			           else {
+			                fd1 = creat(cmdTable.files[1] , 0644) ;
+			           }
+			           
+			        }
+			        else {
+
+			            if (strcmp(cmdTable.io[0], ">>") == 0) {
+			                fd1 = open(cmdTable.files[0], O_WRONLY | O_APPEND | O_CREAT, 0777);
+			           }
+			           else {
+			                fd1 = creat(cmdTable.files[0] , 0644) ;
+			           }
+			        }
+
+			        dup2(fd1, STDOUT_FILENO);
+			        close(fd1);
+			    }
 
 
 
 
+            }
+
+
+            //if not first process redirect input
+            if (i > 0)
+            {
+                dup2(fds[i - 1][READ], STDIN);
+            }
+            else {
+
+               //Check if there is file input redirection
+
+            	if (in) {
+					        int fd0 = open(cmdTable.files[0], O_RDONLY);
+					        dup2(fd0, STDIN_FILENO);
+					        close(fd0);
+					    }
+
+            }
+            
+            for(int j = 0; j < cmdIndex -1; j++) {
+                close(fds[j][0]);
+                close(fds[j][1]);
+            }
+
+
+            //call exec function
+            runExec(argv,cmdTable.argc[i] + 2);
+         
+    
+        }
+
+    }
+    
+    for(int j = 0; j < cmdIndex -1; j++) {
+                close(fds[j][0]);
+                close(fds[j][1]);
+            }
+
+    for(int i = 0; i < cmdIndex; i++) {
+         wait(&status);
+    }
+
+
+    resetCmdTbl();
+    return 1;
+    
+    }

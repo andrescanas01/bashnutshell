@@ -16,7 +16,7 @@ struct cTable {
 	char cmd[100][100];
 	int argc[100];
 	char args[100][100];
-	char io[2][2];
+	char io[2][3];
 	char files[2][100];
 };
 

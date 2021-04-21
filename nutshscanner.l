@@ -53,35 +53,70 @@ int counter = 0;
 %option noyywrap
 %x string_condition
 %x var_condition
+%x var_string_condition
 
 
 CHAR            [.A-Za-z0-9!:\/_-][.A-Za-z0-9!:\/_-]*
-ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -]*
-VARSTART        (\$\{)
+ANYCHAR            [)(*&%#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%#@!`;,\.a-zA-Z0-9'/*_=~ -]*
+VARSTART        \$\{
 META            [|&]
-IO              [<>]
+IO              <|>|>>
 
 %%
 
 <string_condition>{ANYCHAR}+     { yylval.string = strdup(yytext); return STRING;}
 <string_condition>[\"]           {BEGIN(INITIAL); counter++;}
+<string_condition>{VARSTART}     {BEGIN(var_string_condition);}
 
 
-<var_condition>{ANYCHAR}+       {if(isVar(yytext)) {
+<var_condition>{CHAR}+       {if(isVar(yytext)) {
                                     
                                     //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
                                     char *yycopy = strdup( subVar(yytext) );
+                                    
                                         for ( int i = strlen(subVar(yytext)) - 1; i >= 0; --i )
                                             unput( yycopy[i] );
+                                         
                                         free( yycopy );
+
+                                        
+
+
                                     } else {
-                                    
+                                        
                                         yylval.string = strdup(yytext);
                                         return STRING;
                                     };
                                 }
 
-<var_condition>[\}]           {BEGIN(INITIAL); counter++;}
+<var_condition>[\}]           {BEGIN(INITIAL); }
+
+
+<var_string_condition>{CHAR}+       {if(isVar(yytext)) {
+
+                                        char *yycopy = strdup( subVar(yytext) );
+
+                                        for ( int i = strlen(subVar(yytext)) - 1; i >= 0; --i )
+                                            unput( yycopy[i] );
+                                         
+                                        free( yycopy );
+
+                                        
+                                        
+
+
+                                    } else {   
+                                       ;                              
+                                        
+                                    };
+                                }
+                                
+
+<var_string_condition>[\}]           {BEGIN(string_condition); }
+
+
+
+
 
 [ ]		            { }
 bye                 { counter++; return BYE; }
@@ -98,6 +133,7 @@ printenv            { counter++; return PRINTENV; }
 [\"]                 { BEGIN(string_condition); }
 {CHAR}+              {if(counter == 0) {
 
+
                         if(ifAlias(yytext)) {
                     
                         //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
@@ -105,12 +141,13 @@ printenv            { counter++; return PRINTENV; }
                            for ( int i = strlen(subAliases(yytext)) - 1; i >= 0; --i )
                                unput( yycopy[i] );
                            free( yycopy );
-                        } else {                
+                        } else {       
+                            counter++;         
                             yylval.string = strdup(yytext);
                             return STRING;
                         };
                     } else {
-                            counter++;
+                            counter++;                     
                             yylval.string = strdup(yytext);
                             return STRING;
                      }
