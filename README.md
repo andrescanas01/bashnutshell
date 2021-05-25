@@ -16,16 +16,14 @@ This project contains a make file which can be used to build the flex and bison 
 
 
 ## Project Breakdown
-The team members working on this project were Andres Canas and Darren Wang. Unfortunately, Darren Wang was not able to continue with this project. The completed features are broken down by team members as follows:
-
-Andres:  
-All built in commands.  
+This shell can be run within your shell and has the following completed features:
+  
+built in commands - alias, setenv, printenv, unalias, unsetenv.\
 Alias expansion.\
 Error Handling in circular expansions for Alias\
 Environment variable expansion.\
 Error handling\
-Parser Recursion\
-Non-built in commands with any variable number of arguments\
+Non-built in commands with any variable number of arguments - executable commands available in your path.\
 Searching commands in path environment variable\
 IO output redirection.\
 IO input redirection.\
@@ -33,19 +31,14 @@ Multiple Pipes in Command Line Input\
 Multiple Pipes with File I\O Output\
 Overwrite vs Append Output\
 
-Darren:\
-TBD
-
 
 ## Non-completed Features 
 Wild card matching\
 Redirect Standard Error to Output File\
 & functionality for background process running\
 
-
-
 ## Bugs
-Bug when attempting to expand a variable with a string qoutation. Faulty but functional.
+Bug when attempting to expand a variable with a string quotation. Faulty but functional.
 
 
 
